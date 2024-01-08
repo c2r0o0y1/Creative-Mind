@@ -17,33 +17,41 @@ import { Loader } from "@/components/loader";
 import { UserAvatar } from "@/components/user-avatar";
 import { BotAvatar } from "@/components/bot-avatar";
 import { useState } from "react";
-import { ChatCompletionCreateParams } from "openai/resources/index.mjs";
 import { useProModel } from "@/hooks/use-pro-model";
 import toast from "react-hot-toast";
+
+interface Conversation{
+    role: string;
+    content: string;
+}
 
 const ConversationPage = () => {
     const proModel = useProModel();
     const router = useRouter();
-    const [messages, setMessages] = useState<a[]>([]);
+    const [messages, setMessages] = useState<Conversation[]>([]);
 
     const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
         prompt: ""
     }
-    });
+    }); 
 
     const isLoading = form.formState.isSubmitting;
 
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-        const userMessage: ChatCompletionCreateParams = { role: "user", content: values.prompt };
+        const userMessage: Conversation = { role: "user", content: values.prompt };
         const newMessages = [...messages, userMessage];
         
         const response = await axios.post('/api/conversation', { messages: newMessages });
         setMessages((current) => [...current, userMessage, response.data]);
+        // setMessages(response.data)
+        console.log (response.data)
+
         
         form.reset();
+        router.refresh();
     } catch (error: any) {
         if(error?.response?.status === 403){
             proModel.onOpen();
@@ -125,7 +133,7 @@ const ConversationPage = () => {
                 >
                 {message.role === "user" ? <UserAvatar /> : <BotAvatar />}
                 <p className="text-sm">
-                    {message.content}
+                    {message.role === "user" ? message.content : "I am a bot"}
                 </p>
                 </div>
             ))}

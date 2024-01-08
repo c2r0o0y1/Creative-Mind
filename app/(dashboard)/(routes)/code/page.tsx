@@ -12,7 +12,6 @@ import { Button } from "@/components/ui/button"
 import axios from "axios"
 import { useRouter } from "next/navigation"
 import { useState } from "react" 
-import { ChatCompletionRequestMessage } from "openai"
 import { cn } from "@/lib/utils";
 import { Empty } from "@/components/empty";
 import { Loader } from "@/components/loader";
@@ -21,6 +20,10 @@ import { BotAvatar } from "@/components/bot-avatar";
 import ReactMarkdown from "react-markdown";
 import { useProModel } from "@/hooks/use-pro-model";
 
+interface ChatCompletionRequestMessage {
+    role: string;
+    content: string;
+}
 const CodePage = () => {
     const proModel = useProModel();
     const router = useRouter();
@@ -126,7 +129,6 @@ const CodePage = () => {
                 components={{
                     pre: ({ node, ...props }) => (
                         <div>
-
                         </div>
                     )
                 }}>
